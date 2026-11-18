@@ -52,24 +52,6 @@
     padding:28px 14px 48px;
   }
 
-  /* ---------- toolbar ---------- */
-  .toolbar{
-    max-width:1060px; margin:0 auto 14px;
-    display:flex; justify-content:flex-end;
-  }
-  .print-btn{
-    font-family:"Newsreader", Georgia, serif;
-    font-size:15px; font-weight:600; letter-spacing:.04em;
-    color:var(--inkblue-deep);
-    background:var(--paper);
-    border:1.5px solid var(--inkblue);
-    border-radius:999px;
-    padding:10px 22px; min-height:44px;
-    cursor:pointer;
-    box-shadow:0 2px 10px rgba(10,25,55,.25);
-  }
-  .print-btn:hover{ background:var(--inkblue-pale); }
-
   /* ---------- the paper: newsprint texture + deckled edge ---------- */
   .paper{
     position:relative;
@@ -356,10 +338,6 @@
   </defs>
 </svg>
 
-<div class="toolbar">
-  <button class="print-btn" type="button" onclick="window.print()">🖨️ Print Today's Paper</button>
-</div>
-
 <div class="paper">
 
   <!-- Top bar -->
@@ -458,15 +436,16 @@
     </article>
   </div>
 
-  <!-- ROW: Around the World + Trending Now -->
+  <!-- ROW: AI & Business + Trending Now -->
   <div class="row">
     <article>
-      <p class="desk-tag">Around the World Desk</p>
-      <h2 class="headline">Leaders Meet in Shenzhen Thursday</h2>
-      <p class="byline">The World Wire</p>
-      <p>Xi Jinping, Vladimir Putin and Donald Trump meet in Shenzhen on Thursday.</p>
-      <p>Democrat Mary Peltola won Alaska's Senate seat, giving Democrats 56 seats.</p>
-      <p>Nvidia reported quarterly revenue of $115.8 billion, more than double a year earlier.</p>
+      <p class="desk-tag">AI &amp; Business Desk</p>
+      <h2 class="headline">What This Week's AI News Means for Your Business</h2>
+      <p class="byline">The Business Angle · Plain Talk</p>
+      <p><b>GPT-6.2 is here in two sizes.</b> Astra for your hardest projects, Sol for everyday work — so match the job to the model: big builds get Astra, quick posts and captions get Sol, and you stop paying frontier effort for small tasks.</p>
+      <p><b>Gemini Tasks can run errands.</b> In the US it can phone shops, pay with Google Pay and take jobs by email or text — the kind of follow-up and booking work that eats a morning, handled before you've finished your coffee.</p>
+      <p><b>Claude Code chains tools in scripts now.</b> Code Mode links steps together, so a workflow you repeat — prepping a launch, checking a page, moving files — becomes one run instead of ten clicks.</p>
+      <p><b>Antigravity reset everyone's quotas.</b> If you build with Google's coding tool, you start this week with a full tank across all models — a good window to knock out the builds you've been saving.</p>
     </article>
 
     <article>
