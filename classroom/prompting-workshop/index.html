@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prompting Workshop | The Glam Vault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0d1b2e;--sapphire:#0b4fa3;--deep:#071a36;--ice:#eaf2fc;--silver:#c9d2db;--line:#d7e3f0;--ok:#1a7a4c}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:var(--ink);background:#f6f9fd;line-height:1.6}
+header{background:var(--deep);color:#fff;padding:40px 20px 28px;text-align:center}
+header h1{font-family:'Playfair Display',serif;font-size:clamp(30px,6vw,52px);margin:0 0 6px;letter-spacing:.5px}
+header p{margin:0;color:var(--silver)}
+nav{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto;padding:10px 12px}
+nav a{white-space:nowrap;text-decoration:none;color:var(--sapphire);font-weight:600;font-size:14px;padding:8px 12px;border-radius:999px;border:1px solid var(--line)}
+nav a:hover{background:var(--ice)}
+main{max-width:860px;margin:0 auto;padding:20px 16px 60px}
+section{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;margin:18px 0}
+h2{font-family:'Playfair Display',serif;font-size:26px;margin:0 0 10px;color:var(--deep)}
+h3{margin:18px 0 6px;font-size:17px}
+.tag{display:inline-block;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--sapphire);background:var(--ice);padding:4px 10px;border-radius:999px;margin-bottom:8px}
+.steps{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin:12px 0}
+.step{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fbfdff}
+.step b{display:block;color:var(--sapphire);font-size:20px}
+.ba{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+@media(max-width:640px){.ba{grid-template-columns:1fr}}
+.bad,.good{border-radius:12px;padding:14px;font-size:14px}
+.bad{background:#fff3f3;border:1px solid #f1c9c9}
+.good{background:#eefaf3;border:1px solid #bfe6cf}
+.bad strong{color:#a12b2b}.good strong{color:var(--ok)}
+label{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
+select,input,textarea{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+textarea{min-height:70px}
+.out{white-space:pre-wrap;background:var(--deep);color:#eaf2fc;border-radius:12px;padding:16px;font-size:14px;margin-top:14px;min-height:90px}
+button{font:inherit;font-weight:600;border:0;border-radius:999px;padding:10px 18px;cursor:pointer;background:var(--sapphire);color:#fff;margin:10px 8px 0 0}
+button.ghost{background:#fff;color:var(--sapphire);border:1px solid var(--sapphire)}
+.copybox{position:relative;background:var(--ice);border-radius:12px;padding:14px 14px 8px;font-size:14px;white-space:pre-wrap;margin:10px 0}
+.copybox button{margin:8px 0 0}
+.check label{display:flex;gap:10px;align-items:flex-start;font-weight:400;margin:8px 0}
+.check input{width:auto;margin-top:5px}
+.done{color:var(--ok);font-weight:600}
+footer{text-align:center;color:#6b7a8c;font-size:13px;padding:20px}
+@media print{nav,button,#builder .out:empty{display:none!important}header{background:#fff;color:var(--deep)}section{break-inside:avoid;border:1px solid #ccc}body{background:#fff}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Prompting Workshop</h1>
+  <p>Say it right to your AI, and it builds it right. The Glam Vault • Live from 08/30/26</p>
+</header>
+<nav>
+  <a href="#live">Live guide</a>
+  <a href="#formula">The formula</a>
+  <a href="#fix">Fix a prompt</a>
+  <a href="#builder">Prompt builder</a>
+  <a href="#base44">Build in Base44</a>
+  <a href="#check">Checklist</a>
+  <a href="#" onclick="window.print();return false">Print this guide</a>
+</nav>
+<main>
+
+<section id="live">
+  <span class="tag">Live guide • follow along</span>
+  <h2>What we're doing today</h2>
+  <p>By the end of this you'll write prompts that get you what you want the first time, and you'll turn one of them into a real app in Base44.</p>
+  <div class="steps">
+    <div class="step"><b>1</b>Learn the 5-part formula</div>
+    <div class="step"><b>2</b>Fix a weak prompt</div>
+    <div class="step"><b>3</b>Build your own with the builder below</div>
+    <div class="step"><b>4</b>Paste it into Base44</div>
+    <div class="step"><b>5</b>Change one thing at a time</div>
+  </div>
+  <p><strong>Have open:</strong> ChatGPT (or any AI you use) and a free Base44 account. The Base44 link is on the page next to this one.</p>
+</section>
+
+<section id="formula">
+  <span class="tag">Full guide • part 1</span>
+  <h2>The 5-part formula</h2>
+  <p>A good prompt is like ordering at a restaurant. If you just say "food," you get whatever they bring. Tell them exactly what you want, and that's what comes out.</p>
+  <h3>1. Role: who should the AI be?</h3>
+  <p>Always open with "Act as a…". It puts the AI in the right mindset. <em>Act as a senior web designer who builds apps for beginners.</em></p>
+  <h3>2. Goal: what are you making?</h3>
+  <p>One clear sentence. <em>Build a booking page for my nail salon.</em></p>
+  <h3>3. Details: who, what, how it looks</h3>
+  <p>Who it's for, what it needs to do, colors, vibe, must-haves. The more you say, the less it guesses.</p>
+  <h3>4. Format: what you want back</h3>
+  <p>A list? Code? 5 options? Say it. <em>Give me one complete HTML file.</em></p>
+  <h3>5. Rules: what it must NOT do</h3>
+  <p>This is where most people lose. <em>Don't add extra pages. Don't use stock-photo people. Ask me before changing the layout.</em></p>
+</section>
+
+<section id="fix">
+  <span class="tag">Full guide • part 2</span>
+  <h2>Fix a weak prompt</h2>
+  <div class="ba">
+    <div class="bad"><strong>Weak</strong><br>Make me a website for my candle business.</div>
+    <div class="good"><strong>Strong</strong><br>Act as a web designer for small handmade brands. Build a one-page website for my candle business, Velvet Wick. It's for women who love cozy, luxury home scents. Include a hero section, 6 product cards with prices, and an order button. Colors: deep plum and gold. Give me one complete HTML file. Don't add a blog or extra pages.</div>
+  </div>
+  <p><strong>Why it works:</strong> it has a role, one goal, real details, a clear format and a rule. Same AI, totally different result.</p>
+  <h3>Your turn</h3>
+  <p>Take this weak prompt and add all 5 parts before you scroll on: <em>"Make me an Instagram post about my lashes."</em></p>
+</section>
+
+<section id="builder">
+  <span class="tag">Interactive</span>
+  <h2>Prompt builder</h2>
+  <p>Fill it in, then copy your finished prompt.</p>
+  <label for="role">1. Role</label>
+  <select id="role">
+    <option>senior web designer who builds apps for beginners</option>
+    <option>social media strategist for small businesses</option>
+    <option>professional product photographer</option>
+    <option>copywriter who writes short, friendly sales copy</option>
+    <option>patient teacher who explains tech in plain words</option>
+  </select>
+  <input id="roleOther" placeholder="Or type your own role">
+  <label for="goal">2. Goal (one sentence)</label>
+  <input id="goal" placeholder="Build a booking page for my nail salon">
+  <label for="details">3. Details (who it's for, must-haves, colors, vibe)</label>
+  <textarea id="details" placeholder="For busy moms. Needs a service menu with prices, a booking button, and my hours. Colors: blush pink and black."></textarea>
+  <label for="format">4. Format</label>
+  <select id="format">
+    <option>Give me one complete HTML file I can paste in.</option>
+    <option>Give me 5 options to choose from.</option>
+    <option>Give me a step-by-step list.</option>
+    <option>Give me the caption plus 5 hashtags.</option>
+    <option>Ask me 3 questions first, then give me the result.</option>
+  </select>
+  <label for="rules">5. Rules (what it must NOT do)</label>
+  <textarea id="rules" placeholder="Don't add extra pages. Don't change my colors. Keep the words short."></textarea>
+  <button onclick="build()">Build my prompt</button>
+  <button class="ghost" onclick="copyOut()">Copy</button>
+  <span id="copied" class="done"></span>
+  <div class="out" id="out"></div>
+</section>
+
+<section id="base44">
+  <span class="tag">Full guide • part 3</span>
+  <h2>Turn your prompt into an app in Base44</h2>
+  <h3>Step 1: Plan first</h3>
+  <p>Paste this into Base44 before you build anything:</p>
+  <div class="copybox" id="p1">Act as a patient app builder who explains everything in plain words. I want to build [WHAT YOU'RE BUILDING] for [WHO IT'S FOR]. Before you build, tell me in a short list: what pages it needs, what it needs to save, and anything I need to connect. Don't build yet. Ask me any questions first.<br><button onclick="copyBox('p1',this)">Copy</button></div>
+  <h3>Step 2: Build</h3>
+  <p>Answer its questions, then paste the prompt you made in the builder above.</p>
+  <h3>Step 3: Change one thing at a time</h3>
+  <p>Never ask for 10 fixes at once. One change, check it, then the next one.</p>
+  <div class="copybox" id="p2">Act as a careful app editor. Change ONLY this: [THE ONE THING]. Don't touch anything else on the page. Tell me exactly what you changed.<br><button onclick="copyBox('p2',this)">Copy</button></div>
+  <h3>Step 4: When something breaks</h3>
+  <div class="copybox" id="p3">Act as a patient app fixer. This isn't working: [WHAT YOU CLICKED] and [WHAT HAPPENED]. Explain in plain words what's wrong, then fix only that.<br><button onclick="copyBox('p3',this)">Copy</button></div>
+</section>
+
+<section id="check" class="check">
+  <span class="tag">Before you hit send</span>
+  <h2>Prompt checklist</h2>
+  <label><input type="checkbox"> It starts with "Act as a…"</label>
+  <label><input type="checkbox"> It has one clear goal</label>
+  <label><input type="checkbox"> I said who it's for</label>
+  <label><input type="checkbox"> I told it what I want back</label>
+  <label><input type="checkbox"> I told it what NOT to do</label>
+  <label><input type="checkbox"> I'm only asking for one change at a time</label>
+  <p id="all" class="done"></p>
+</section>
+
+</main>
+<footer>The Glam Vault • Prompting Workshop guide • Questions? Drop them in the comments under this lesson.</footer>
+<script>
+function build(){
+  var role=document.getElementById('roleOther').value.trim()||document.getElementById('role').value;
+  var goal=document.getElementById('goal').value.trim()||'[YOUR GOAL]';
+  var details=document.getElementById('details').value.trim()||'[YOUR DETAILS]';
+  var format=document.getElementById('format').value;
+  var rules=document.getElementById('rules').value.trim();
+  var p='Act as a '+role.replace(/^(a|an)\s+/i,'')+'.\n\n'+goal.replace(/\.?$/,'.')+'\n\n'+details+'\n\n'+format;
+  if(rules) p+='\n\nRules: '+rules;
+  document.getElementById('out').textContent=p;
+  document.getElementById('copied').textContent='';
+}
+function copyText(t,el){
+  if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){el.textContent='Copied';});}
+  else{var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove();el.textContent='Copied';}
+}
+function copyOut(){var t=document.getElementById('out').textContent;if(!t){build();t=document.getElementById('out').textContent;}copyText(t,document.getElementById('copied'));}
+function copyBox(id,btn){var t=document.getElementById(id).childNodes[0].textContent.trim();copyText(t,btn);setTimeout(function(){btn.textContent='Copy';},1500);}
+document.querySelectorAll('#check input').forEach(function(c){c.addEventListener('change',function(){
+  var all=[].every.call(document.querySelectorAll('#check input'),function(x){return x.checked});
+  document.getElementById('all').textContent=all?'You\'re ready. Send it.':'';
+});});
+</script>
+</body>
+</html>
