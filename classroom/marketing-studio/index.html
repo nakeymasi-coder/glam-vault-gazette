@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLAM Marketing Prompt Generator — Beginner Edition</title>
+  <style>
+    :root {
+      --sapphire: #168FEA;
+      --deep-sapphire: #103B63;
+      --ink: #171A1E;
+      --silver: #C9D2DB;
+      --silver-dark: #8D99A5;
+      --white: #FFFFFF;
+      --mist: #F2F8FC;
+      --line: #DCE8F1;
+      --success: #18794E;
+      --danger: #A83245;
+      --shadow: 0 18px 50px rgba(16, 59, 99, .12);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(22,143,234,.14), transparent 28rem),
+        linear-gradient(180deg, #FFFFFF 0%, #F6FBFF 55%, #EEF7FD 100%);
+      font-family: Montserrat, Arial, sans-serif;
+      min-height: 100vh;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .shell { display: grid; grid-template-columns: 270px minmax(0, 1fr); min-height: 100vh; }
+    .sidebar {
+      position: sticky; top: 0; height: 100vh; overflow-y: auto;
+      padding: 26px 18px;
+      background: linear-gradient(180deg, var(--ink), #102C43 70%, var(--deep-sapphire));
+      color: var(--white); border-right: 1px solid rgba(255,255,255,.14);
+    }
+    .brand-kicker { color: #A9DBFF; font-size: .72rem; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; }
+    .brand-title { margin: 7px 0 8px; font-family: Anton, Impact, sans-serif; font-size: 1.52rem; line-height: 1.05; letter-spacing: .02em; }
+    .brand-copy { margin: 0 0 22px; color: #D9ECFA; font-size: .82rem; line-height: 1.5; }
+    .nav { display: grid; gap: 8px; }
+    .nav button {
+      width: 100%; border: 1px solid transparent; border-radius: 14px; padding: 12px 14px;
+      color: #EAF6FF; background: transparent; text-align: left; font-weight: 800;
+      transition: .18s ease;
+    }
+    .nav button:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.12); }
+    .nav button.active { background: var(--sapphire); color: white; box-shadow: 0 8px 24px rgba(22,143,234,.3); }
+    .side-note { margin-top: 22px; padding: 14px; border: 1px solid rgba(255,255,255,.14); border-radius: 16px; color: #CFEAFF; font-size: .77rem; line-height: 1.5; }
+
+    main { min-width: 0; padding: 34px clamp(18px, 4vw, 58px) 70px; }
+    .topbar { max-width: 1180px; margin: 0 auto 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    .eyebrow { margin: 0 0 7px; color: var(--deep-sapphire); font-size: .74rem; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; }
+    h1, h2, h3 { margin-top: 0; }
+    h1, h2 { font-family: Anton, Impact, sans-serif; letter-spacing: .015em; }
+    h1 { margin-bottom: 6px; font-size: clamp(2rem, 4vw, 3.25rem); line-height: 1; color: var(--deep-sapphire); }
+    h2 { margin-bottom: 10px; font-size: clamp(1.55rem, 3vw, 2.15rem); color: var(--deep-sapphire); }
+    .subtitle { margin: 0; max-width: 760px; line-height: 1.6; color: #496273; }
+    .status-pill { flex: none; padding: 9px 13px; border-radius: 999px; border: 1px solid #AEDBFA; background: #EAF7FF; color: var(--deep-sapphire); font-size: .78rem; font-weight: 900; }
+    .view { display: none; max-width: 1180px; margin: 0 auto; }
+    .view.active { display: block; animation: rise .22s ease; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    .hero-card, .panel {
+      background: rgba(255,255,255,.94); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
+    }
+    .hero-card { padding: clamp(22px, 4vw, 42px); position: relative; overflow: hidden; }
+    .hero-card::after { content: ""; position: absolute; width: 230px; height: 230px; border-radius: 50%; right: -90px; top: -110px; background: radial-gradient(circle, rgba(22,143,234,.28), transparent 68%); pointer-events: none; }
+    .panel { padding: clamp(18px, 3vw, 30px); margin-top: 18px; }
+    .panel-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 18px; }
+    .panel-head p { margin: 0; color: #5A7181; line-height: 1.5; }
+    .step { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; color: white; background: var(--sapphire); font-weight: 900; }
+    .grid { display: grid; gap: 16px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .field { display: grid; gap: 7px; align-content: start; }
+    .field.span-2 { grid-column: span 2; }
+    label, .label { font-size: .83rem; font-weight: 900; color: #263D4D; }
+    .hint { color: #6D8190; font-size: .73rem; line-height: 1.4; }
+    input, select, textarea {
+      width: 100%; border: 1px solid #C8D9E6; border-radius: 12px; background: white; color: var(--ink);
+      padding: 12px 13px; outline: none; transition: .15s ease;
+    }
+    textarea { min-height: 104px; resize: vertical; line-height: 1.5; }
+    input:focus, select:focus, textarea:focus { border-color: var(--sapphire); box-shadow: 0 0 0 4px rgba(22,143,234,.12); }
+    .checks { display: flex; flex-wrap: wrap; gap: 8px; }
+    .check { display: inline-flex; align-items: center; gap: 7px; padding: 9px 11px; border: 1px solid #CBDBE7; border-radius: 999px; background: #fff; font-size: .78rem; font-weight: 800; }
+    .check input { width: auto; accent-color: var(--sapphire); }
+    .preset-row { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; }
+    .preset { border: 1px solid #BFD8E8; background: #F8FCFF; color: var(--deep-sapphire); border-radius: 999px; padding: 9px 12px; font-size: .78rem; font-weight: 900; }
+    .preset:hover { background: #E8F6FF; border-color: var(--sapphire); }
+    .goal-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin-top: 20px; }
+    .goal-card { border: 2px solid #C9DEEC; border-radius: 18px; padding: 18px; background: #fff; color: var(--deep-sapphire); text-align: left; transition: .18s ease; }
+    .goal-card strong { display: block; margin-bottom: 6px; font-size: 1rem; }
+    .goal-card span { color: #607887; font-size: .78rem; line-height: 1.45; }
+    .goal-card:hover { border-color: var(--sapphire); transform: translateY(-1px); }
+    .goal-card.active { border-color: var(--sapphire); background: #EAF7FF; box-shadow: 0 10px 28px rgba(22,143,234,.15); }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .btn { border: 0; border-radius: 12px; padding: 12px 16px; font-weight: 900; transition: .18s ease; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn.primary { background: linear-gradient(135deg, #168FEA, #0B71BE); color: white; box-shadow: 0 10px 24px rgba(22,143,234,.23); }
+    .btn.dark { background: var(--ink); color: white; }
+    .btn.light { background: #EDF7FD; color: var(--deep-sapphire); border: 1px solid #C9E3F4; }
+    .btn.danger { background: #FFF1F3; color: var(--danger); border: 1px solid #F2C5CC; }
+    .btn.small { padding: 8px 11px; font-size: .76rem; }
+    .module-intro { margin-bottom: 18px; padding: 17px 19px; border-left: 5px solid var(--sapphire); background: #EDF8FF; border-radius: 0 16px 16px 0; color: #35576C; line-height: 1.55; }
+    .output-wrap { margin-top: 22px; }
+    .output-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .output { min-height: 300px; font-family: Consolas, "Courier New", monospace; font-size: .88rem; background: #101C25; color: #F4FAFE; border: 1px solid #203A4D; box-shadow: inset 0 0 0 1px rgba(255,255,255,.03); }
+    .count { font-size: .73rem; color: #718594; }
+    .notice { padding: 12px 14px; border-radius: 12px; font-size: .8rem; line-height: 1.45; }
+    .notice.info { background: #EDF8FF; border: 1px solid #C6E6FA; color: #24516D; }
+    .notice.warn { background: #FFF8E8; border: 1px solid #EED798; color: #6E5013; }
+    .saved-list { display: grid; gap: 12px; }
+    .saved-item { padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+    .saved-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+    .saved-item h3 { margin-bottom: 5px; color: var(--deep-sapphire); font-size: 1rem; }
+    .saved-meta { color: #718594; font-size: .72rem; }
+    .saved-preview { margin: 10px 0 0; color: #4B6474; font-size: .8rem; line-height: 1.5; white-space: pre-wrap; }
+    .empty { text-align: center; padding: 34px; color: #6C8190; border: 1px dashed #BBD1E0; border-radius: 16px; }
+    .toast { position: fixed; right: 22px; bottom: 22px; z-index: 99; max-width: 340px; padding: 13px 16px; border-radius: 13px; background: var(--ink); color: white; box-shadow: 0 14px 34px rgba(0,0,0,.23); opacity: 0; transform: translateY(12px); pointer-events: none; transition: .2s ease; }
+    .toast.show { opacity: 1; transform: none; }
+    .required::after { content: " *"; color: var(--sapphire); }
+    footer { max-width: 1180px; margin: 28px auto 0; text-align: center; color: #718594; font-size: .75rem; }
+
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; padding: 18px; }
+      .nav { display: flex; overflow-x: auto; padding-bottom: 4px; }
+      .nav button { width: auto; white-space: nowrap; }
+      .side-note { display: none; }
+      main { padding-top: 24px; }
+      .topbar { align-items: flex-start; }
+    }
+    @media (max-width: 660px) {
+      .grid.two, .grid.three { grid-template-columns: 1fr; }
+      .goal-grid { grid-template-columns: 1fr; }
+      .field.span-2 { grid-column: auto; }
+      .topbar { display: block; }
+      .status-pill { display: inline-block; margin-top: 12px; }
+      .panel-head { display: block; }
+      .panel-head .step { margin-bottom: 10px; }
+      .btn { flex: 1 1 140px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand-kicker">Glam Hustle Hub · Beginner Edition</div>
+      <div class="brand-title">MARKETING PROMPT STUDIO</div>
+      <p class="brand-copy">Pick from dropdowns. Let the AI recommend what you do not know. Copy your finished prompt.</p>
+      <nav class="nav" aria-label="Generator modules">
+        <button class="active" data-view="project">1. Start Here</button>
+        <button data-view="research">2. Research</button>
+        <button data-view="listing">3. Sales Listing</button>
+        <button data-view="visuals">4. Visual Prompts</button>
+        <button data-view="content">5. Social Content</button>
+        <button data-view="email">6. Email</button>
+        <button data-view="launch">7. Launch Plan</button>
+        <button data-view="sales">8. Sales Strategy</button>
+        <button data-view="audit">9. Audit & Improve</button>
+        <button data-view="campaign">10. Full Campaign</button>
+        <button data-view="saved">Saved Work</button>
+      </nav>
+      <div class="side-note">Choose from the dropdowns. Written details are optional, and the AI can recommend what you do not know yet.</div>
+    </aside>
+
+    <main>
+      <div class="topbar">
+        <div>
+          <p class="eyebrow">Guided marketing made simpler</p>
+          <h1 id="pageTitle">WHAT DO YOU NEED?</h1>
+          <p class="subtitle" id="pageSubtitle">Choose one path, make a few selections, and get a useful prompt immediately.</p>
+        </div>
+        <div class="status-pill" id="projectStatus">Choices not saved</div>
+      </div>
+
+      <section class="view active" id="view-project">
+        <div class="hero-card">
+          <p class="eyebrow">Start here</p>
+          <h2>What do you need help with today?</h2>
+          <p class="subtitle">Pick one. The next choices and the generated prompt will match that goal.</p>
+          <div class="goal-grid" aria-label="Choose your goal">
+            <button class="goal-card active" data-goal="discover"><strong>Discover a product</strong><span>I need help deciding what I could realistically create and sell.</span></button>
+            <button class="goal-card" data-goal="market"><strong>Market my product</strong><span>I have something to sell and need the listing, content, visuals, emails, or launch.</span></button>
+            <button class="goal-card" data-goal="fix"><strong>Fix weak sales</strong><span>I already have a product, but people are not finding it or buying it.</span></button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><div><h3 id="wizardTitle">Help me discover a product</h3><p>Choose the closest answers. “Let the AI recommend” is always allowed.</p></div><span class="step">2</span></div>
+          <div class="grid two">
+            <div class="field"><label for="productType">What kind of product?</label><select id="productType"><option>Let the AI recommend the best format</option><option>Prompt generator</option><option>Digital download</option><option>Template or toolkit</option><option>Guide or workbook</option><option>Live workshop</option><option>Mini-course</option><option>Full course</option><option>Membership</option><option>Service</option><option>App or interactive tool</option><option>Bundle</option></select></div>
+            <div class="field"><label for="productCategory">Main topic or category</label><select id="productCategory"><option>AI and technology for beginners</option><option>Online business and marketing</option><option>Digital product creation</option><option>Content creation and social media</option><option>Website building</option><option>Creative design and AI images</option><option>Workshops and education</option><option>Medical assistant education</option><option>Caregiving resources</option><option>Health and wellness education</option><option>Faith and affirmations</option><option>Personal development</option><option>Home and lifestyle</option><option>Events and invitations</option><option>Let the AI recommend a category</option></select></div>
+            <div class="field"><label for="audience">Who should it help?</label><select id="audience"><option>Women 40+ who are beginners with AI or technology</option><option>Aspiring digital product creators</option><option>Content creators</option><option>Small-business owners</option><option>Coaches, educators, and workshop hosts</option><option>Medical assistants or medical-assistant students</option><option>Family caregivers</option><option>Busy mothers and grandmothers</option><option>General adult beginners</option><option>Let the AI recommend the best audience</option></select></div>
+            <div class="field"><label id="needLabel" for="marketingNeed">What do you want the AI to decide?</label><select id="marketingNeed"></select></div>
+            <div class="field"><label for="salesChannel">Where will it be sold?</label><select id="salesChannel"><option>Let the AI recommend</option><option>Payhip</option><option>My website</option><option>Etsy</option><option>Gumroad</option><option>Skool</option><option>Social media direct sales</option><option>I have not decided</option></select></div>
+            <div class="field span-2"><span class="label">Platforms you want to use</span><div class="checks" id="platformChecks"><label class="check"><input type="checkbox" value="TikTok">TikTok</label><label class="check"><input type="checkbox" value="Facebook" checked>Facebook</label><label class="check"><input type="checkbox" value="Instagram">Instagram</label><label class="check"><input type="checkbox" value="Pinterest">Pinterest</label><label class="check"><input type="checkbox" value="YouTube">YouTube</label><label class="check"><input type="checkbox" value="Email" checked>Email</label><label class="check"><input type="checkbox" value="Website">Website</label></div></div>
+            <div class="field"><label for="aiTarget">Where will you paste the prompt?</label><select id="aiTarget"><option>ChatGPT</option><option>Grok</option><option>ChatGPT or Grok</option><option>Another capable AI assistant</option></select></div>
+            <div class="field"><label for="detailLevel">How much help?</label><select id="detailLevel"><option selected>Beginner — decide and explain it for me</option><option>Quick — keep it short</option><option>Detailed — give me the complete result</option><option>Pro — include advanced strategy</option></select></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><div><h3>Get your starting prompt</h3><p>This button produces something immediately. It also saves your choices for the other tools.</p></div><span class="step">3</span></div>
+          <input id="helpGoal" type="hidden" value="discover"><input id="productStage" type="hidden" value="I need the AI to recommend a product">
+          <input id="projectName" type="hidden"><input id="brandName" type="hidden"><input id="productName" type="hidden"><input id="website" type="hidden">
+          <input id="productDescription" type="hidden"><input id="problem" type="hidden" value="Let the AI identify the strongest problem"><input id="result" type="hidden" value="Let the AI recommend the most realistic result">
+          <input id="mechanism" type="hidden"><input id="price" type="hidden" value="Let the AI recommend a realistic price"><input id="offer" type="hidden" value="Let the AI recommend the simplest delivery">
+          <input id="features" type="hidden"><input id="proof" type="hidden"><input id="objections" type="hidden"><input id="boundaries" type="hidden">
+          <input id="voice" type="hidden" value="Let the AI recommend the best voice"><input id="brandColors" type="hidden" value="Let the AI recommend a coordinated palette"><input id="visualStyle" type="hidden" value="Let the AI recommend the best style">
+          <input id="campaignGoal" type="hidden" value="Let the AI recommend the best goal"><input id="launchDate" type="hidden"><input id="exclusions" type="hidden"><input id="customDirection" type="hidden">
+          <div class="actions"><button class="btn primary generate" data-module="start" id="generateStart">Generate My Starting Prompt</button><button class="btn light" id="newProject">Start Over</button><button class="btn dark" id="exportProject">Export Choices</button><button class="btn light" id="importProject">Import Choices</button><input id="importFile" type="file" accept="application/json" hidden></div>
+          <button id="saveProject" hidden>Save</button>
+          <div class="output-wrap" data-output="start"></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-research" data-title="RESEARCH PROMPT" data-subtitle="Create evidence-led research prompts that separate facts from guesses.">
+        <div class="module-intro">Use this when the decision depends on current customer problems, competitors, prices, trends, or platform conditions. The prompt requires live web research and citations.</div>
+        <div class="panel">
+          <div class="grid two">
+            <div class="field"><label for="researchTask">Research goal</label><select id="researchTask"><option>Validate customer demand</option><option>Understand customer problems and language</option><option>Compare competitors</option><option>Research pricing</option><option>Find market gaps</option><option>Research current trends</option><option>Complete market validation</option></select></div>
+            <div class="field"><label for="researchMarket">Market or location</label><input id="researchMarket" value="United States" placeholder="United States, global, local city..."></div>
+            <div class="field"><label for="researchDecision">Decision this research should support</label><textarea id="researchDecision" placeholder="Example: Decide whether to launch this as a generator or workshop."></textarea></div>
+            <div class="field"><label for="researchNotes">Known competitors or questions</label><textarea id="researchNotes" placeholder="Names, links, concerns, assumptions, or topics to investigate."></textarea></div>
+          </div>
+          <div class="actions"><button class="btn primary generate" data-module="research">Generate Research Prompt</button><button class="btn light recommend">Help Me Choose</button></div>
+          <div class="output-wrap" data-output="research"></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-listing" data-title="SALES LISTING" data-subtitle="Generate product-led sales copy for the right storefront.">
+        <div class="module-intro">This prompt tells the AI to sell the buyer’s result—not merely describe the product file or its appearance.</div>
+        <div class="panel"><div class="grid two">
+          <div class="field"><label for="listingPlatform">Destination</label><select id="listingPlatform"><option>Payhip</option><option>Website sales page</option><option>Gumroad</option><option>Etsy</option><option>Landing page</option></select></div>
+          <div class="field"><label for="listingLength">Length</label><select id="listingLength"><option>Short and conversion-focused</option><option selected>Standard sales listing</option><option>Full sales page</option></select></div>
+          <div class="field"><label for="listingOutputs">Required sections</label><textarea id="listingOutputs">Headline, opening hook, problem, desired result, benefits, what is included, how it works, who it is for, objections, FAQ, boundaries, and CTA.</textarea></div>
+          <div class="field"><label for="listingSEO">Search terms or SEO direction</label><textarea id="listingSEO" placeholder="Optional keywords. Ask the AI to research instead of guessing when needed."></textarea></div>
+        </div><div class="actions"><button class="btn primary generate" data-module="listing">Generate Listing Prompt</button></div><div class="output-wrap" data-output="listing"></div></div>
+      </section>
+
+      <section class="view" id="view-visuals" data-title="VISUAL PROMPTS" data-subtitle="Create platform-sized art direction with protected wording and brand rules.">
+        <div class="module-intro">Choose one asset at a time. The generated prompt includes exact visible wording, dimensions, composition, and a final prohibited-element check.</div>
+        <div class="panel"><div class="grid two">
+          <div class="field"><label for="visualAsset">Asset type</label><select id="visualAsset"><option>Promotional flyer</option><option>Product cover</option><option>Payhip product thumbnail</option><option>Payhip header</option><option>Website hero graphic</option><option>YouTube thumbnail</option><option>Pinterest pin</option><option>Social media graphic</option><option>What's Inside graphic</option><option>Product mockup</option><option>Logo concept</option><option>Email banner</option></select></div>
+          <div class="field"><label for="dimensions">Dimensions or ratio</label><input id="dimensions" placeholder="Example: 1280×720, 9:16, or 1916×821"></div>
+          <div class="field"><label for="visibleCopy">Exact visible wording</label><textarea id="visibleCopy" placeholder="Type only the words that must appear on the finished visual."></textarea></div>
+          <div class="field"><label for="visualSubject">Main subject or product imagery</label><textarea id="visualSubject" placeholder="Product files, adult woman, workspace, typography, abstract materials..."></textarea></div>
+          <div class="field"><label for="visualFormat">Artwork format</label><select id="visualFormat"><option>Flat finished artwork</option><option>Realistic product mockup</option><option>Typography-led design</option><option>Photo-led editorial design</option><option>3D product presentation</option></select></div>
+          <div class="field"><label for="visualExtra">Asset-specific direction</label><textarea id="visualExtra" placeholder="Placement, lighting, pose, materials, mood, or elements to preserve."></textarea></div>
+        </div><div class="notice warn">If the placement has an exact required size, enter it. The generator will not pretend one size fits every platform.</div><div class="actions"><button class="btn primary generate" data-module="visuals">Generate Visual Prompt</button></div><div class="output-wrap" data-output="visuals"></div></div>
+      </section>
+
+      <section class="view" id="view-content" data-title="SOCIAL CONTENT" data-subtitle="Create platform-native content instead of repeating one generic caption everywhere.">
+        <div class="module-intro">Pinterest prompts focus on search intent, the customer problem, and the product result—not a literal description of the picture.</div>
+        <div class="panel"><div class="grid two">
+          <div class="field"><label for="contentPlatform">Platform</label><select id="contentPlatform"><option>TikTok</option><option>Facebook</option><option>Instagram</option><option>Pinterest</option><option>YouTube</option><option>YouTube Shorts</option></select></div>
+          <div class="field"><label for="contentFormat">Format</label><select id="contentFormat"><option>Promotional post</option><option>Educational post</option><option>Short video script</option><option>Carousel</option><option>Story sequence</option><option>Live talking points</option><option>Pin package</option><option>Long-form video outline</option></select></div>
+          <div class="field"><label for="contentObjective">Objective</label><select id="contentObjective"><option>Awareness</option><option>Education</option><option>Engagement</option><option>Demonstration</option><option>Launch</option><option>Direct sale</option><option>Objection handling</option></select></div>
+          <div class="field"><label for="contentCount">Number of variations</label><select id="contentCount"><option>1</option><option>3</option><option>5</option><option>10</option></select></div>
+          <div class="field"><label for="contentAngle">Content angle</label><textarea id="contentAngle" placeholder="Pain point, story, tutorial, before/after, myth, FAQ, demonstration..."></textarea></div>
+          <div class="field"><label for="contentCTA">Specific CTA</label><textarea id="contentCTA" placeholder="What should the viewer do next?"></textarea></div>
+        </div><div class="actions"><button class="btn primary generate" data-module="content">Generate Content Prompt</button></div><div class="output-wrap" data-output="content"></div></div>
+      </section>
+
+      <section class="view" id="view-email" data-title="EMAIL PROMPTS" data-subtitle="Create purposeful emails that teach, sell, and handle real objections.">
+        <div class="module-intro">Each email receives a distinct job, subject line, preview text, body, and CTA. The AI is told not to invent testimonials or urgency.</div>
+        <div class="panel"><div class="grid two">
+          <div class="field"><label for="emailType">Email deliverable</label><select id="emailType"><option>Single launch email</option><option>3-email sequence</option><option>5-email sequence</option><option>7-email sequence</option><option>Nurture email</option><option>Reminder email</option><option>FAQ and objection email</option><option>Last-call email</option><option>Post-purchase welcome email</option><option>Evergreen sales sequence</option></select></div>
+          <div class="field"><label for="emailAudienceState">Audience state</label><select id="emailAudienceState"><option>Warm audience</option><option>New subscribers</option><option>Past customers</option><option>Waitlist</option><option>Cold or unfamiliar audience</option></select></div>
+          <div class="field"><label for="emailGoal">What should this email accomplish?</label><textarea id="emailGoal" placeholder="Introduce the offer, answer a concern, get registrations, close cart..."></textarea></div>
+          <div class="field"><label for="emailTiming">Real deadline or timing</label><textarea id="emailTiming" placeholder="Optional. Include only genuine dates, limits, or deadlines."></textarea></div>
+        </div><div class="actions"><button class="btn primary generate" data-module="email">Generate Email Prompt</button></div><div class="output-wrap" data-output="email"></div></div>
+      </section>
+
+      <section class="view" id="view-launch" data-title="LAUNCH PLAN" data-subtitle="Build a realistic launch sequence with channel jobs, assets, and measurements.">
+        <div class="module-intro">The prompt creates the strategy before producing a mountain of content. It assigns each channel a job and protects against fake scarcity.</div>
+        <div class="panel"><div class="grid two">
+          <div class="field"><label for="launchType">Launch type</label><select id="launchType"><option>New product launch</option><option>Live workshop launch</option><option>Evergreen promotion</option><option>Waitlist campaign</option><option>Re-launch</option><option>Soft launch</option></select></div>
+          <div class="field"><label for="launchLength">Campaign length</label><select id="launchLength"><option>7 days</option><option>14 days</option><option>30 days</option><option>Recommend the best length</option></select></div>
+          <div class="field"><label for="launchMeasure">Primary success measure</label><input id="launchMeasure" placeholder="Sales, registrations, waitlist sign-ups, qualified clicks..."></div>
+          <div class="field"><label for="launchCapacity">Available time and capacity</label><input id="launchCapacity" placeholder="Example: 10 hours per week, no paid ads"></div>
+          <div class="field span-2"><label for="launchAssets">Assets already available</label><textarea id="launchAssets" placeholder="Photos, product images, videos, reviews, email list, sales page..."></textarea></div>
+        </div><div class="actions"><button class="btn primary generate" data-module="launch">Generate Launch Prompt</button></div><div class="output-wrap" data-output="launch"></div></div>
+      </section>
+
+      <section class="view" id="view-sales" data-title="SALES STRATEGY" data-subtitle="Clarify positioning, price, angles, objections, and the path to purchase.">
+        <div class="module-intro">This module connects the offer to the buyer’s situation. It does not treat a lower price as the automatic answer to weak sales.</div>
+        <div class="panel"><div class="grid two">
+          <div class="field"><label for="salesTask">Strategy task</label><select id="salesTask"><option>Complete sales strategy</option><option>Positioning and value proposition</option><option>Price recommendation</option><option>Offer structure</option><option>Objection handling</option><option>Sales angles and hooks</option><option>CTA strategy</option></select></div>
+          <div class="field"><label for="salesAlternative">Main alternative or competitor</label><input id="salesAlternative" placeholder="DIY, free ChatGPT, course, service, competitor..."></div>
+          <div class="field"><label for="salesGoal">Sales goal or decision</label><textarea id="salesGoal" placeholder="What should the strategy help you decide or achieve?"></textarea></div>
+          <div class="field"><label for="salesConstraints">Constraints</label><textarea id="salesConstraints" placeholder="Budget, audience size, support limit, platform, launch date..."></textarea></div>
+        </div><div class="actions"><button class="btn primary generate" data-module="sales">Generate Sales Strategy Prompt</button></div><div class="output-wrap" data-output="sales"></div></div>
+      </section>
+
+      <section class="view" id="view-audit" data-title="AUDIT & IMPROVE" data-subtitle="Diagnose a weak listing or campaign before rebuilding it.">
+        <div class="module-intro">Paste the real material and available numbers. When data is missing, the prompt requires a provisional diagnosis instead of making up a cause.</div>
+        <div class="panel"><div class="grid two">
+          <div class="field"><label for="auditType">What needs review?</label><select id="auditType"><option>Product listing</option><option>Sales page</option><option>Launch campaign</option><option>Email sequence</option><option>Social content</option><option>Visual campaign</option><option>Full marketing funnel</option></select></div>
+          <div class="field"><label for="auditWindow">Measurement window</label><input id="auditWindow" placeholder="Example: August 1–14, 2026"></div>
+          <div class="field span-2"><label for="auditMaterial">Paste the existing copy or describe the campaign</label><textarea id="auditMaterial" style="min-height:180px" placeholder="Paste the material exactly as it currently exists."></textarea></div>
+          <div class="field"><label for="auditData">Available performance data</label><textarea id="auditData" placeholder="Reach, views, clicks, leads, checkouts, sales, revenue, refunds, spend..."></textarea></div>
+          <div class="field"><label for="protectedElements">What must not change?</label><textarea id="protectedElements" placeholder="Approved name, price, visual identity, sections, links, features..."></textarea></div>
+        </div><div class="actions"><button class="btn primary generate" data-module="audit">Generate Audit Prompt</button></div><div class="output-wrap" data-output="audit"></div></div>
+      </section>
+
+      <section class="view" id="view-campaign" data-title="FULL CAMPAIGN" data-subtitle="Create one coordinated prompt package from the same product foundation.">
+        <div class="module-intro">Use this only after the product and offer are clear. The AI must keep the same audience, promise, offer, brand, and CTA across every requested asset.</div>
+        <div class="panel"><div class="grid two">
+          <div class="field"><label for="campaignLength">Campaign period</label><select id="campaignLength"><option>7 days</option><option>14 days</option><option>30 days</option></select></div>
+          <div class="field"><label for="campaignStage">Campaign stage</label><select id="campaignStage"><option>Pre-launch</option><option>Launch</option><option>Post-launch</option><option>Evergreen</option><option>Complete pre-launch through post-launch</option></select></div>
+          <div class="field span-2"><span class="label">Include in the coordinated package</span><div class="checks" id="campaignChecks"><label class="check"><input type="checkbox" value="Positioning and core message" checked>Positioning</label><label class="check"><input type="checkbox" value="Sales listing" checked>Sales listing</label><label class="check"><input type="checkbox" value="Visual asset prompts" checked>Visual prompts</label><label class="check"><input type="checkbox" value="Platform-specific social content" checked>Social content</label><label class="check"><input type="checkbox" value="Email sequence" checked>Email</label><label class="check"><input type="checkbox" value="Launch timeline and checklist" checked>Launch plan</label><label class="check"><input type="checkbox" value="FAQ and objection responses">FAQ</label><label class="check"><input type="checkbox" value="Repurposing map">Repurposing</label></div></div>
+          <div class="field span-2"><label for="campaignSpecial">Special campaign instructions</label><textarea id="campaignSpecial" placeholder="Specific dates, promotions, asset counts, events, content limitations, or required talking points."></textarea></div>
+        </div><div class="actions"><button class="btn primary generate" data-module="campaign">Generate Full Campaign Prompt</button></div><div class="output-wrap" data-output="campaign"></div></div>
+      </section>
+
+      <section class="view" id="view-saved" data-title="SAVED WORK" data-subtitle="Reuse, copy, favorite, or export the prompts you created.">
+        <div class="panel"><div class="panel-head"><div><h3>Saved prompts</h3><p>Saved only in this browser unless you export them.</p></div><div class="actions" style="margin:0"><button class="btn dark small" id="exportPrompts">Export All</button><button class="btn danger small" id="clearPrompts">Delete All</button></div></div><div id="savedList" class="saved-list"></div></div>
+      </section>
+
+      <footer>GLAM Marketing Prompt Studio · Built for practical, responsible marketing · No sales guarantees</footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      "use strict";
+      const $ = (id) => document.getElementById(id);
+      const q = (sel, root = document) => root.querySelector(sel);
+      const qa = (sel, root = document) => [...root.querySelectorAll(sel)];
+      const PROJECT_KEY = "glamMarketingProjectV1";
+      const PROMPTS_KEY = "glamMarketingPromptsV1";
+      const moduleNames = {start:"Starting",research:"Research",listing:"Sales Listing",visuals:"Visual Prompt",content:"Social Content",email:"Email",launch:"Launch Plan",sales:"Sales Strategy",audit:"Audit & Improve",campaign:"Full Campaign"};
+      let activeView = "project";
+
+      const projectIds = ["helpGoal","marketingNeed","salesChannel","projectName","brandName","productName","productStage","productType","productCategory","productDescription","audience","problem","result","mechanism","price","offer","features","proof","objections","boundaries","voice","website","brandColors","visualStyle","exclusions","customDirection","campaignGoal","launchDate","aiTarget","detailLevel"];
+      const moduleFieldIds = {
+        start:[],
+        research:["researchTask","researchMarket","researchDecision","researchNotes"],
+        listing:["listingPlatform","listingLength","listingOutputs","listingSEO"],
+        visuals:["visualAsset","dimensions","visibleCopy","visualSubject","visualFormat","visualExtra"],
+        content:["contentPlatform","contentFormat","contentObjective","contentCount","contentAngle","contentCTA"],
+        email:["emailType","emailAudienceState","emailGoal","emailTiming"],
+        launch:["launchType","launchLength","launchMeasure","launchCapacity","launchAssets"],
+        sales:["salesTask","salesAlternative","salesGoal","salesConstraints"],
+        audit:["auditType","auditWindow","auditMaterial","auditData","protectedElements"],
+        campaign:["campaignLength","campaignStage","campaignSpecial"]
+      };
+
+      function clean(value) { return String(value || "").trim(); }
+      function selectedChecks(containerId) { return qa(`#${containerId} input:checked`).map(x => x.value); }
+      function getProject() {
+        const data = {};
+        projectIds.forEach(id => data[id] = clean($(id).value));
+        data.platforms = selectedChecks("platformChecks");
+        return data;
+      }
+      function getFields(module) {
+        const data = {};
+        (moduleFieldIds[module] || []).forEach(id => data[id] = clean($(id).value));
+        if (module === "campaign") data.campaignIncludes = selectedChecks("campaignChecks");
+        return data;
+      }
+      function line(label, value) { return clean(value) ? `- ${label}: ${clean(value)}` : ""; }
+      function joinLines(lines) { return lines.filter(Boolean).join("\n"); }
+      function projectBrief(p) {
+        return joinLines([
+          line("Help needed today", p.helpGoal), line("Selected focus or sales symptom", p.marketingNeed), line("Sales destination", p.salesChannel),
+          line("Project name", p.projectName), line("Business/brand", p.brandName), line("Product/offer name", p.productName || "Not named yet — recommend clear options when useful"),
+          line("Current product stage", p.productStage), line("Product type", p.productType), line("Topic/category", p.productCategory),
+          line("What it is", p.productDescription), line("Primary buyer", p.audience), line("Customer problem", p.problem),
+          line("Desired result", p.result), line("How the offer helps", p.mechanism), line("Price", p.price),
+          line("Offer details", p.offer), line("What is included", p.features), line("Real proof/credibility", p.proof),
+          line("Likely objections", p.objections), line("Boundaries and requirements", p.boundaries), line("Brand voice", p.voice),
+          line("CTA destination", p.website), line("Brand colors", p.brandColors), line("Visual style", p.visualStyle),
+          line("Exclusions", p.exclusions), line("Campaign goal", p.campaignGoal), line("Launch date/deadline", p.launchDate),
+          line("Selected platforms", p.platforms.join(", ")), line("Target AI", p.aiTarget), line("Custom direction", p.customDirection)
+        ]);
+      }
+      function promptHeader(p, role) {
+        return `Act as ${role}. Create the requested deliverable for the project below. Use a ${p.detailLevel.toLowerCase()} approach suitable for the user to follow.\n\nPROJECT BRIEF\n${projectBrief(p)}\n\nNON-NEGOTIABLE RULES\n- Do not invent customer demand, statistics, reviews, testimonials, proof, deadlines, scarcity, guarantees, or income claims.\n- The user may only know a category or product type. Do not stop and return a questionnaire. Make the strongest reasonable recommendations, clearly label suggested details, and explain only decisions the user needs to approve.\n- If the product is unnamed, refer to it by its type/category and recommend up to three clear names only when naming is useful.\n- When features or offer details are missing, propose a lean working version and label it as a recommendation rather than pretending it already exists.\n- Separate confirmed facts from assumptions and identify any missing fact that would make the result unsafe or unusable.\n- Keep the work specific to this category, buyer, and goal; avoid generic filler and unnecessary jargon.\n- Connect recommended features to buyer benefits and the achievable result.\n- Finish with one clear next action or CTA when appropriate.`;
+      }
+      function validateProject(module) {
+        const p = getProject();
+        if (module === "visuals" && !clean($("dimensions").value)) toast("Tip: add exact dimensions when your destination requires them.");
+        return p;
+      }
+
+      const builders = {
+        start(p) {
+          if (p.helpGoal === "discover") {
+            return `${promptHeader(p,"a practical product strategist and current market researcher")}\n\nMY REQUEST\nHelp me discover one strong product I could realistically create and sell. I do not know the product name, exact problem, offer, price, or contents yet. Decide those with me instead of sending me a long questionnaire.\n\nDISCOVERY RULES\n- Start with no more than three product opportunities that fit the selected category, audience, format preference, and focus.\n- For each, show the customer problem, achievable result, format, why it fits, creation difficulty, and main risk.\n- Use current web research when demand, competitors, pricing, trends, or platform conditions affect the recommendation. Cite important sources directly.\n- Separate evidence from inference and assumptions. Never promise profit or call an idea validated without buyer evidence.\n- Recommend one winner and explain why it is the strongest first product.\n- Build a lean working product brief for the winner: buyer, problem, result, mechanism, core contents, delivery, boundaries, suggested price range, and smallest sellable version.\n- Do not create the full campaign yet.\n\nEND WITH\nOne clear recommended product and the single next decision I need to approve.`;
+          }
+          if (p.helpGoal === "fix") {
+            return `${promptHeader(p,"a blunt but constructive product-marketing and conversion auditor")}\n\nMY REQUEST\nHelp me determine why this product is not selling well and choose the smallest useful fix. Do not assume the product itself is bad, and do not redesign everything.\n\nAUDIT RULES\n- Use the selected sales symptom and destination as the starting clue, not as proven cause.\n- Separate possible product, audience, positioning, price, trust, traffic, listing, visual, checkout, and promotion problems.\n- Give me a short provisional diagnosis based on what is known.\n- Then ask me for only ONE most useful piece of evidence, such as the sales-page link, listing screenshot, traffic numbers, or current promotion. Do not give me a long intake form.\n- After I provide it, review it using Keep / Change / Why / Expected signal.\n- Preserve approved names, features, links, visuals, and sections unless evidence shows the requested element is causing the problem.\n- Recommend one controlled test with a metric and success rule.\n\nRETURN NOW\n1. What the current selections suggest\n2. What cannot be known yet\n3. The one item I should provide next\n4. What you will evaluate after I provide it.`;
+          }
+          return `${promptHeader(p,"a coordinated product marketing strategist, sales copywriter, launch planner, and creative director")}\n\nMY REQUEST\nHelp me market this product. I may not have a final name, message, offer, or price yet. Recommend missing pieces clearly instead of sending me a long questionnaire.\n\nMARKETING FOUNDATION\n- Clarify the most likely buyer problem, achievable result, and useful product mechanism from the selected category, audience, product type, and marketing focus.\n- Recommend up to three product names only if it is unnamed, then choose one working name.\n- Create a lean offer structure, honest price direction, positioning statement, value proposition, three sales angles, likely objections, and one CTA path.\n- Recommend no more than three marketing channels, prioritizing the platforms I selected. Give each channel a distinct job.\n- If important product facts are missing, label recommendations as suggestions. Never invent existing features, proof, reviews, or results.\n\nRETURN\n1. Working marketing brief\n2. Recommended message and offer\n3. Best channel plan\n4. Required, recommended, and optional assets\n5. The best module to use next in this generator and why.`;
+        },
+        research(p,f) {
+          return `${promptHeader(p,"a careful market researcher and product strategist with access to current web research")}\n\nRESEARCH ASSIGNMENT\n${joinLines([line("Goal",f.researchTask),line("Market/location",f.researchMarket),line("Decision this supports",f.researchDecision),line("Known competitors/questions",f.researchNotes)])}\n\nRESEARCH REQUIREMENTS\n- Search the current web. Prefer primary sources, official platform pages, current competitor sales pages, and credible first-party data.\n- Use public customer conversations and marketplace reviews only as directional evidence, not universal truth.\n- Research repeated problems, failed attempts, desired outcomes, buying concerns, existing alternatives, pricing, and meaningful gaps.\n- Record current listed prices and the date observed. Do not call a small sample a typical market price.\n- Search for counterevidence: good free alternatives, low urgency, saturation, unwillingness to pay, or high support burden.\n- Label every major point as Evidence, Inference, Assumption, or Unknown.\n- Cite consequential claims with direct links placed beside the claim.\n\nRETURN\n1. Research question and decision\n2. Evidence table: finding, evidence type, confidence, implication, source\n3. Customer problem and real customer-language themes\n4. Competitor/alternative snapshot: offer, audience, format, current price, strength, gap\n5. Demand signals and counter-signals\n6. Risks and unknowns\n7. Verdict: proceed, test first, reposition, or stop\n8. Smallest ethical validation test with go/revise/stop rules\n9. One direct recommendation: what should be done next because of the research.`;
+        },
+        listing(p,f) {
+          return `${promptHeader(p,"a conversion-focused product listing writer")}\n\nLISTING ASSIGNMENT\n${joinLines([line("Destination",f.listingPlatform),line("Requested length",f.listingLength),line("Required sections",f.listingOutputs),line("SEO direction",f.listingSEO)])}\n\nWRITING RULES\n- Lead with the buyer's problem, desired result, and why the offer matters now. Do not open by describing the cover, file, or number of pages.\n- Keep the opening scannable and persuasive without hype.\n- Distinguish features, benefits, and results.\n- Explain exactly what the buyer receives, how delivery works, what tools are required, and what is not included when supplied.\n- Address beginner objections honestly. Do not pressure buyers who are a mismatch.\n- Use keywords naturally. If current keyword research is needed, say so rather than guessing.\n- Match ${f.listingPlatform}'s browsing behavior and formatting.\n\nRETURN\n- 3 title options and recommend 1\n- Finished ${f.listingLength.toLowerCase()} listing ready to paste\n- Short store-card description\n- Honest FAQ and objection responses\n- One primary CTA using the supplied destination\n- Final accuracy check listing any claim that still needs confirmation.`;
+        },
+        visuals(p,f) {
+          const exact = f.visibleCopy || "No visible wording supplied; recommend the minimum necessary copy before writing the image prompt.";
+          return `${promptHeader(p,"a senior commercial art director and AI image-prompt specialist")}\n\nVISUAL ASSIGNMENT\n${joinLines([line("Asset",f.visualAsset),line("Dimensions/ratio",f.dimensions),line("Exact visible wording",exact),line("Main subject/product imagery",f.visualSubject),line("Artwork format",f.visualFormat),line("Additional direction",f.visualExtra)])}\n\nART DIRECTION RULES\n- Build one clear focal point with strong hierarchy, controlled spacing, and usable negative space.\n- Preserve the supplied brand colors and visual style. Do not replace them with generic colors.\n- Every visible word must be spelled correctly, fully visible, unobstructed, undistorted, and high contrast.\n- Keep visible copy concise enough for the asset and destination. Warn if the wording is too long.\n- Do not add fake buttons, random icons, charts, dashboards, HUD overlays, scan lines, AI brain imagery, clutter, or unrelated props.\n- Do not add crowns, tiaras, royal headpieces, or excessive sparkles unless explicitly requested.\n- If an adult woman appears, keep her clearly adult and preserve any supplied age, skin tone, ethnicity, body type, and proportions. Never automatically slim a plus-size woman.\n- Keep flat artwork separate from mockups. Use a mockup only when the selected format specifically requests one.\n\nRETURN\n1. Recommended composition and text hierarchy\n2. One production-ready image-generation prompt for ${f.visualAsset}\n3. Negative constraints\n4. QA checklist for wording, legibility, composition, dimensions, brand fit, and prohibited elements.`;
+        },
+        content(p,f) {
+          const platformRules = f.contentPlatform === "Pinterest"
+            ? "For Pinterest, write a search-friendly Pin title and description around the buyer's problem, desired result, and use case. Do not merely describe the image. Include natural keywords, a clear CTA, a board suggestion, and no useless hashtag pile."
+            : `Adapt the hook, structure, length, CTA, and native behavior specifically for ${f.contentPlatform}.`;
+          return `${promptHeader(p,`a platform-native ${f.contentPlatform} content strategist and copywriter`)}\n\nCONTENT ASSIGNMENT\n${joinLines([line("Platform",f.contentPlatform),line("Format",f.contentFormat),line("Objective",f.contentObjective),line("Number of variations",f.contentCount),line("Angle",f.contentAngle),line("Specific CTA",f.contentCTA)])}\n\nPLATFORM RULES\n- ${platformRules}\n- Start with a customer-led hook, not the product name unless it strengthens the opening.\n- Give each variation a meaningfully different angle, not minor rewrites.\n- Use the brand voice while keeping public-facing wording clear and clean.\n- Never fabricate proof, comments, testimonials, trends, or urgency.\n- Hashtags are optional; include only a small relevant set when they genuinely help the selected platform.\n\nRETURN FOR EACH VARIATION\n1. Customer-focused angle\n2. Hook or cover wording\n3. Finished ${f.contentFormat.toLowerCase()}\n4. Visual/B-roll direction when relevant\n5. CTA and exact destination\n6. Any asset needed.`;
+        },
+        email(p,f) {
+          return `${promptHeader(p,"an ethical email marketing strategist and conversion copywriter")}\n\nEMAIL ASSIGNMENT\n${joinLines([line("Deliverable",f.emailType),line("Audience state",f.emailAudienceState),line("Goal",f.emailGoal),line("Real deadline/timing",f.emailTiming)])}\n\nEMAIL RULES\n- Give every email a distinct purpose and move the reader forward logically.\n- Lead with relevance to the reader, not empty excitement.\n- Use only genuine deadlines, limits, proof, and urgency supplied in the project.\n- Explain the offer clearly and handle objections without manipulation.\n- Keep paragraphs easy to read on a phone.\n\nRETURN FOR EACH EMAIL\n- Purpose and recommended send timing\n- 3 subject-line options\n- Preview text\n- Finished email body\n- One primary CTA\n- Segmentation or exclusion note when appropriate.\nEnd with a sequence-level check for repetition, unsupported claims, and missing information.`;
+        },
+        launch(p,f) {
+          return `${promptHeader(p,"a practical launch strategist for beginner-friendly digital offers")}\n\nLAUNCH ASSIGNMENT\n${joinLines([line("Launch type",f.launchType),line("Campaign length",f.launchLength),line("Success measure",f.launchMeasure),line("Available capacity",f.launchCapacity),line("Assets available",f.launchAssets)])}\n\nPLANNING RULES\n- Choose a realistic sequence for the available time and audience warmth.\n- Assign each selected channel a distinct job. Do not duplicate identical captions everywhere.\n- Balance education, problem awareness, demonstration, objections, offer, and CTA.\n- Use only real launch dates and ethical urgency.\n- Do not recommend every possible asset; separate Required, Recommended, and Optional.\n- Identify risks and a simpler contingency plan.\n\nRETURN\n1. Launch goal and success measure\n2. Launch type and reasoning\n3. Audience segment and core message\n4. Timeline by phase and date\n5. Channel roles\n6. Offer and CTA path\n7. Required asset checklist\n8. FAQ and objection plan\n9. Contingencies and risks\n10. Day-by-day execution checklist for ${f.launchLength}.`;
+        },
+        sales(p,f) {
+          return `${promptHeader(p,"a product positioning, offer, and sales strategist")}\n\nSTRATEGY ASSIGNMENT\n${joinLines([line("Task",f.salesTask),line("Main alternative",f.salesAlternative),line("Goal/decision",f.salesGoal),line("Constraints",f.salesConstraints)])}\n\nSTRATEGY RULES\n- Base recommendations on the supplied customer, problem, mechanism, result, proof, and constraints.\n- Do not treat a lower price as the automatic fix.\n- If current competitors or pricing affect the decision, conduct current research and cite sources.\n- Explain uncertainty and never present a price as objectively correct.\n- Do not add irrelevant bonuses, fake value stacks, or manufactured urgency.\n\nRETURN\n1. Positioning statement\n2. One-sentence value proposition\n3. Three strongest sales angles\n4. Offer structure and boundaries\n5. Price recommendation or narrow range with reasoning and assumptions\n6. Objection matrix: concern, root issue, honest response, proof/policy needed, placement\n7. Primary CTA and customer path\n8. Biggest risk and one recommended next move.`;
+        },
+        audit(p,f) {
+          return `${promptHeader(p,"a blunt but constructive marketing conversion auditor")}\n\nAUDIT ASSIGNMENT\n${joinLines([line("Asset/funnel",f.auditType),line("Measurement window",f.auditWindow),line("Existing material",f.auditMaterial),line("Performance data",f.auditData),line("Protected elements",f.protectedElements)])}\n\nAUDIT RULES\n- Preserve every protected element. Do not redesign or rename unrelated parts.\n- Check whether the underlying issue is product usefulness, audience fit, positioning, price, trust, traffic quality, sales copy, checkout friction, onboarding, or promotion.\n- Compare like with like and note missing or unreliable data.\n- Separate observations from likely explanations. Do not claim causation without evidence.\n- If data is insufficient, label the diagnosis provisional and make measurement setup the first action.\n\nRETURN\n1. Goal and data-quality notes\n2. What works and should stay\n3. What underperforms and why it matters\n4. Keep / Change / Why / Expected signal table\n5. Evidence versus likely explanations\n6. Continue / Stop / Improve / Test decisions\n7. One prioritized experiment: hypothesis, single change, metric, duration, success rule\n8. Revised copy only for the highest-priority weak section.`;
+        },
+        campaign(p,f) {
+          const includes = (f.campaignIncludes || []).join(", ") || "Recommend the smallest necessary campaign package";
+          return `${promptHeader(p,"a coordinated product marketing director, launch strategist, copywriter, and visual creative director")}\n\nCAMPAIGN ASSIGNMENT\n${joinLines([line("Campaign period",f.campaignLength),line("Campaign stage",f.campaignStage),line("Required package",includes),line("Special instructions",f.campaignSpecial)])}\n\nCAMPAIGN RULES\n- Use one consistent customer, promise, offer, price, visual identity, and CTA across the entire campaign.\n- Build the sequence before writing individual assets.\n- Adapt content for each selected platform rather than duplicating identical wording.\n- Lead with the customer's problem, desired result, stakes, and reason to act—not just features or appearance.\n- Separate required assets from optional extras.\n- Create each visual as a separate asset; never combine multiple requested designs into a collage or grid.\n- Use only real proof, deadlines, availability, and urgency.\n- Keep the workload realistic for ${f.campaignLength}.\n\nRETURN IN THIS ORDER\n1. Campaign goal, audience segment, core message, and success measure\n2. Offer and CTA path\n3. Phase-by-phase campaign sequence\n4. Channel roles\n5. ${includes}\n6. Day-by-day calendar with platform, format, angle, hook, talking points, CTA, and asset needed\n7. Coordinated visual direction with exact visible copy and correct platform sizing\n8. Quality-control check for consistency, claims, readability, and missing facts\n9. One first action to begin execution today.`;
+        }
+      };
+
+      function outputTemplate(module, text) {
+        return `<div class="output-bar"><div><strong>${moduleNames[module]} prompt</strong><div class="count">${text.length.toLocaleString()} characters · editable before copying</div></div></div><textarea class="output" id="output-${module}" aria-label="Generated ${moduleNames[module]} prompt">${escapeHtml(text)}</textarea><div class="actions"><button class="btn primary small" data-copy="${module}">Copy Prompt</button><button class="btn light small" data-save="${module}">Save Prompt</button><button class="btn dark small" data-download="${module}">Download .txt</button><button class="btn light small generate" data-module="${module}">Regenerate</button></div>`;
+      }
+      function escapeHtml(str) { return str.replace(/[&<>"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[ch])); }
+      function generate(module) {
+        const p = validateProject(module); if (!p) return;
+        if (module === "start") saveProject(true);
+        const f = getFields(module);
+        const text = builders[module](p,f);
+        const target = q(`[data-output="${module}"]`);
+        target.innerHTML = outputTemplate(module,text);
+        target.scrollIntoView({behavior:"smooth",block:"start"});
+      }
+      async function copyText(text) {
+        try { await navigator.clipboard.writeText(text); toast("Prompt copied."); }
+        catch { const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();toast("Prompt copied."); }
+      }
+      function download(name, text, type="text/plain") {
+        const blob = new Blob([text],{type}); const url=URL.createObjectURL(blob); const a=document.createElement("a");
+        a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),500);
+      }
+      function savePrompt(module) {
+        const area = $(`output-${module}`); if (!area) return;
+        const prompts = JSON.parse(localStorage.getItem(PROMPTS_KEY) || "[]");
+        const p=getProject(), label=p.productName||p.productCategory||p.productType||"Untitled project";
+        prompts.unshift({id:Date.now(),module,title:`${label} — ${moduleNames[module]}`,text:area.value,favorite:false,created:new Date().toISOString()});
+        localStorage.setItem(PROMPTS_KEY,JSON.stringify(prompts)); toast("Prompt saved in this browser."); renderSaved();
+      }
+      function renderSaved() {
+        const prompts = JSON.parse(localStorage.getItem(PROMPTS_KEY) || "[]"); const box=$("savedList"); if(!box)return;
+        if(!prompts.length){box.innerHTML='<div class="empty">No saved prompts yet. Generate a prompt, then choose Save Prompt.</div>';return;}
+        box.innerHTML=prompts.map(item=>`<article class="saved-item"><div class="saved-top"><div><h3>${item.favorite?"★ ":""}${escapeHtml(item.title)}</h3><div class="saved-meta">${escapeHtml(moduleNames[item.module]||item.module)} · ${new Date(item.created).toLocaleString()}</div></div><div class="actions" style="margin:0"><button class="btn light small" data-favorite-id="${item.id}">${item.favorite?"Unfavorite":"Favorite"}</button><button class="btn danger small" data-delete-id="${item.id}">Delete</button></div></div><p class="saved-preview">${escapeHtml(item.text.slice(0,330))}${item.text.length>330?"…":""}</p><div class="actions"><button class="btn primary small" data-copy-id="${item.id}">Copy</button><button class="btn dark small" data-download-id="${item.id}">Download</button></div></article>`).join("");
+      }
+      function saveProject(silent = false) {
+        const p=getProject(); localStorage.setItem(PROJECT_KEY,JSON.stringify(p));
+        $("projectStatus").textContent=p.projectName||p.productName||p.productCategory||"Choices saved"; if(!silent)toast("Choices saved in this browser.");
+      }
+      function loadProject(data) {
+        setGoal(data.helpGoal || "discover");
+        projectIds.forEach(id=>{if($(id)&&data[id]!==undefined)$(id).value=data[id];});
+        qa("#platformChecks input").forEach(x=>x.checked=(data.platforms||[]).includes(x.value));
+        $("projectStatus").textContent=data.projectName||data.productName||data.productCategory||"Project loaded";
+      }
+      function clearProject() {
+        if(!confirm("Clear all project fields? Saved prompts will remain."))return;
+        projectIds.forEach(id=>{ const el=$(id); if(el.tagName==="SELECT") el.selectedIndex=0; else el.value=""; });
+        setGoal("discover"); qa("#platformChecks input").forEach(x=>x.checked=["Facebook","Email"].includes(x.value)); localStorage.removeItem(PROJECT_KEY); $("projectStatus").textContent="Choices not saved"; toast("Started over.");
+      }
+      function showView(name) {
+        activeView=name; qa(".view").forEach(v=>v.classList.toggle("active",v.id===`view-${name}`));
+        qa(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
+        const view=$(`view-${name}`); $("pageTitle").textContent=view.dataset.title||"WHAT DO YOU NEED?"; $("pageSubtitle").textContent=view.dataset.subtitle||"Choose one path, make a few selections, and get a useful prompt immediately.";
+        if(name==="saved")renderSaved(); window.scrollTo({top:0,behavior:"smooth"});
+      }
+      function toast(message) { const t=$("toast");t.textContent=message;t.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove("show"),2800); }
+      const needOptions={
+        discover:{title:"Help me discover a product",label:"What should the AI prioritize?",stage:"I need the AI to recommend a product",goal:"Let the AI recommend the best goal",options:["Compare three ideas and choose the strongest one","Find the easiest product to create first","Find the lowest-cost product to create","Find an evergreen product I can sell repeatedly","Match a product to my skills and experience","Decide everything for me"]},
+        market:{title:"Help me market my product",label:"What marketing help do you need first?",stage:"My product is ready to market",goal:"Make sales",options:["Create my complete marketing direction","Write a strong sales listing","Plan my promotional visuals","Create platform-specific social content","Write my email campaign","Plan my product launch","Decide the best next marketing move"]},
+        fix:{title:"Help me fix weak sales",label:"What is happening right now?",stage:"My product is not selling well",goal:"Improve weak sales",options:["I am getting little or no traffic","People see it but do not click","People click but do not buy","Sales happen, but they are inconsistent","Buyers ask questions but do not purchase","I do not know what is wrong"]}
+      };
+      function setGoal(goal) {
+        const config=needOptions[goal]||needOptions.discover;
+        $("helpGoal").value=goal; $("productStage").value=config.stage; $("campaignGoal").value=config.goal;
+        $("problem").value="Let the AI identify the strongest problem"; $("result").value="Let the AI recommend the most realistic result";
+        $("price").value="Let the AI recommend a realistic price"; $("offer").value="Let the AI recommend the simplest delivery";
+        $("voice").value="Let the AI recommend the best voice"; $("brandColors").value="Let the AI recommend a coordinated palette"; $("visualStyle").value="Let the AI recommend the best style";
+        $("wizardTitle").textContent=config.title; $("needLabel").textContent=config.label;
+        $("marketingNeed").innerHTML=config.options.map(option=>`<option>${option}</option>`).join("");
+        qa(".goal-card").forEach(card=>card.classList.toggle("active",card.dataset.goal===goal));
+      }
+      function applyPreset(name) {
+        const sets={
+          recommend:{productStage:"I need the AI to recommend a product",productType:"Let the AI recommend the best format",productCategory:"Let the AI recommend a category",audience:"Let the AI recommend the best audience",problem:"Let the AI identify the strongest problem",result:"Let the AI recommend the most realistic result",price:"Let the AI recommend a realistic price",offer:"Let the AI recommend the simplest delivery",voice:"Let the AI recommend the best voice",campaignGoal:"Let the AI recommend the best goal",brandColors:"Let the AI recommend a coordinated palette",visualStyle:"Let the AI recommend the best style"},
+          digital:{productStage:"I know the product type but not the details",productType:"Digital download",campaignGoal:"Launch a new offer",offer:"Instant download with lifetime access",mechanism:"A guided digital resource the buyer can use at her own pace."},
+          workshop:{productStage:"My product is ready to market",productType:"Live workshop",campaignGoal:"Get workshop registrations",offer:"Live session with replay",mechanism:"A beginner-friendly, hands-on live session where students complete a specific result."},
+          service:{productStage:"I know the product type but not the details",productType:"Service",campaignGoal:"Make sales",offer:"Booked service or consultation",mechanism:"A defined service process with clear deliverables, boundaries, and support."},
+          evergreen:{campaignGoal:"Make sales",offer:"Instant download with lifetime access"},
+          rescue:{productStage:"My product is not selling well",campaignGoal:"Improve weak sales",customDirection:"Protect approved product elements. Diagnose the smallest high-impact marketing change before recommending a rebuild."}
+        };
+        Object.entries(sets[name]).forEach(([id,val])=>$(id).value=val); toast("Preset applied. Edit every field to fit your offer.");
+      }
+
+      qa(".nav button").forEach(btn=>btn.addEventListener("click",()=>showView(btn.dataset.view)));
+      qa("[data-jump]").forEach(btn=>btn.addEventListener("click",()=>showView(btn.dataset.jump)));
+      qa(".goal-card").forEach(btn=>btn.addEventListener("click",()=>setGoal(btn.dataset.goal)));
+      qa(".preset").forEach(btn=>btn.addEventListener("click",()=>applyPreset(btn.dataset.preset)));
+      qa(".recommend").forEach(btn=>btn.addEventListener("click",()=>{ $("researchTask").value="Complete market validation"; $("researchDecision").value="Decide whether this offer should be built and sold now, tested in a smaller version first, repositioned, or stopped."; toast("Recommended research setup applied."); }));
+      $("saveProject").addEventListener("click",()=>saveProject());
+      $("newProject").addEventListener("click",clearProject);
+      $("exportProject").addEventListener("click",()=>download(`${clean($("projectName").value)||"marketing-project"}.json`,JSON.stringify(getProject(),null,2),"application/json"));
+      $("importProject").addEventListener("click",()=>$("importFile").click());
+      $("importFile").addEventListener("change",e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const data=JSON.parse(reader.result);loadProject(data);saveProject();toast("Project imported.");}catch{toast("That project file is not valid JSON.");}};reader.readAsText(file);e.target.value="";});
+
+      document.addEventListener("click",e=>{
+        const gen=e.target.closest(".generate[data-module]"); if(gen)generate(gen.dataset.module);
+        const copy=e.target.closest("[data-copy]"); if(copy){const area=$(`output-${copy.dataset.copy}`);if(area)copyText(area.value);}
+        const save=e.target.closest("[data-save]"); if(save)savePrompt(save.dataset.save);
+        const dl=e.target.closest("[data-download]"); if(dl){const m=dl.dataset.download,a=$(`output-${m}`);if(a)download(`${m}-prompt.txt`,a.value);}
+        const copyId=e.target.closest("[data-copy-id]"); if(copyId){const item=JSON.parse(localStorage.getItem(PROMPTS_KEY)||"[]").find(x=>x.id===Number(copyId.dataset.copyId));if(item)copyText(item.text);}
+        const dlId=e.target.closest("[data-download-id]"); if(dlId){const item=JSON.parse(localStorage.getItem(PROMPTS_KEY)||"[]").find(x=>x.id===Number(dlId.dataset.downloadId));if(item)download(`${item.module}-prompt.txt`,item.text);}
+        const fav=e.target.closest("[data-favorite-id]"); if(fav){const list=JSON.parse(localStorage.getItem(PROMPTS_KEY)||"[]"),item=list.find(x=>x.id===Number(fav.dataset.favoriteId));if(item){item.favorite=!item.favorite;localStorage.setItem(PROMPTS_KEY,JSON.stringify(list));renderSaved();}}
+        const del=e.target.closest("[data-delete-id]"); if(del&&confirm("Delete this saved prompt?")){const list=JSON.parse(localStorage.getItem(PROMPTS_KEY)||"[]").filter(x=>x.id!==Number(del.dataset.deleteId));localStorage.setItem(PROMPTS_KEY,JSON.stringify(list));renderSaved();}
+      });
+      $("exportPrompts").addEventListener("click",()=>{const list=JSON.parse(localStorage.getItem(PROMPTS_KEY)||"[]");if(!list.length)return toast("There are no saved prompts to export.");download("glam-marketing-prompts.txt",list.map(x=>`${x.title}\n${new Date(x.created).toLocaleString()}\n\n${x.text}\n\n${"=".repeat(70)}`).join("\n\n"));});
+      $("clearPrompts").addEventListener("click",()=>{if(confirm("Delete every saved prompt from this browser?")){localStorage.removeItem(PROMPTS_KEY);renderSaved();toast("Saved prompts deleted.");}});
+
+      const dimensionDefaults={"Promotional flyer":"4:5 portrait","Product cover":"3:4 portrait","Payhip product thumbnail":"Square 1:1 unless the store placement requires another size","Payhip header":"Enter the exact Payhip placement dimensions","Website hero graphic":"Enter the exact website hero dimensions","YouTube thumbnail":"1280×720 (16:9)","Pinterest pin":"1000×1500 (2:3)","Social media graphic":"1080×1350 (4:5)","What's Inside graphic":"1080×1350 (4:5)","Product mockup":"3:4 portrait","Logo concept":"Square 1:1 presentation","Email banner":"1200×600 (2:1)"};
+      $("visualAsset").addEventListener("change",()=>{$("dimensions").value=dimensionDefaults[$("visualAsset").value]||"";});
+      $("contentPlatform").addEventListener("change",()=>{const map={Pinterest:"Pin package",TikTok:"Short video script",Instagram:"Carousel",Facebook:"Promotional post",YouTube:"Long-form video outline","YouTube Shorts":"Short video script"};$("contentFormat").value=map[$("contentPlatform").value]||$("contentFormat").value;});
+
+      setGoal("discover");
+      const stored=localStorage.getItem(PROJECT_KEY); if(stored){try{loadProject(JSON.parse(stored));}catch{localStorage.removeItem(PROJECT_KEY);}}
+      renderSaved();
+    })();
+  </script>
+</body>
+</html>
